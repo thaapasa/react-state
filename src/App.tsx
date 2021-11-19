@@ -1,26 +1,40 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { createState } from './state/StateProvider';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <Container />
       </header>
     </div>
   );
 }
+
+const SharedState = createState({ a: "moi", b: "hei", c: "jepa" })
+
+const Container: React.FC<{}> = () => {
+  return (
+    <SharedState.Provider>
+      <A />
+      <B />
+      <C />
+    </SharedState.Provider>
+  )
+}
+
+const A: React.FC<{}> = () => {
+  const [a, setA] = SharedState.useState("a")
+  console.log("Render A", a)
+  return <div>Client A: {a} <button onClick={() => setA(a + "!")}>Jeps</button></div>
+}
+const B: React.FC<{}> = () => {
+  const [a] = SharedState.useState("a")
+  const [b, setB] = SharedState.useState("b")
+  console.log("Render B", a, b)
+  return <div>Client B: {a}<br />{b} <button onClick={() => setB(b + "!")}>Jeps</button></div>
+}
+const C: React.FC<{}> = () => <div>Client C</div>
 
 export default App;
