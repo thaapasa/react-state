@@ -1,4 +1,4 @@
-import * as React from "react"
+import React from 'react';
 
 type NotifyFun<T> = (newValue: T) => void
 
@@ -9,7 +9,7 @@ interface StateManager<V> {
   useState: () => StateResult<V>
 }
 
-export function createSharedState<T>(prototype: T): { [K in keyof T]: StateManager<T[K]>} {
+function createSharedState<T>(prototype: T): { [K in keyof T]: StateManager<T[K]>} {
   const state: { [K in keyof T]: StateManager<T[K]>} = {} as any
   Object.keys(prototype).forEach((k: any) => (state as any)[k] = createStateManager((prototype as any)[k]))
   return state
@@ -33,5 +33,18 @@ function createStateManager<V>(initialValue: V): StateManager<V> {
       }, [setVal])
       return [val, propagate]
     }
+  }
+}
+
+
+export function createState<T>(initialState: T) {
+  const state = createSharedState(initialState)
+  const Context = React.createContext(state)
+
+  const Provider: React.FC<{}> = ({children}) => <Context.Provider value={state}>{children}</Context.Provider>
+
+  return {
+    Provider,
+    useState: (name: keyof T) => React.useContext(Context)[name].useState()
   }
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { createState } from './state/StateProvider';
+import { createState } from './state/SharedState';
 
 function App() {
   return (
