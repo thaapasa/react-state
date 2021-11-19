@@ -18,11 +18,17 @@ function createSharedState<T>(prototype: T): { [K in keyof T]: StateManager<T[K]
 function createStateManager<V>(initialValue: V): StateManager<V> {
   let value = initialValue
   let listeners: NotifyFun<V>[] = []
-  const propagate = (v: V) => listeners.forEach(l => l(v))
+  const propagate = (v: V) => {
+    // Update actual state value
+    value = v
+    // Propagate change to all registered listeners
+    listeners.forEach(l => l(v))
+  }
+
   return {
     current: initialValue,
     useState: () => {
-      const [val, setVal] = React.useState(value)
+      const [, setVal] = React.useState(value)
       React.useEffect(() => {
         // Track this new internal state value
         listeners.push(setVal)
@@ -31,7 +37,7 @@ function createStateManager<V>(initialValue: V): StateManager<V> {
           listeners.splice(listeners.findIndex(l => l === setVal), 1)
         }
       }, [setVal])
-      return [val, propagate]
+      return [value, propagate]
     }
   }
 }
